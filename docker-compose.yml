@@ -1,0 +1,36 @@
+version: "3.1"
+
+services:
+  mysql_tolldata:
+    image: mzsd/mysql_tolldata:1.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.8
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka:
+    image: docker.io/bitnami/kafka:3.3
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+
+  kafka_toll_generator:
+    image: mzsd/kafka_toll_generator:1.0
+    # command: >
+    #   /bin/sh -c 'python toll_traffic_generator.py'
+    
+  kafka_reader:
+    image: mzsd/kafka_reader:1.0
+    # command: >
+    #   /bin/sh -c 'python streaming_data_reader.py'
+    
